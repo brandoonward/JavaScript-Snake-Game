@@ -57,9 +57,13 @@ function main() {
   
     if (has_game_ended()) {
         document.getElementById('retryButton').innerHTML="Retry";
-        document.getElementById('retryButton').addEventListener("click", function() {
-          location.reload();
-        })
+        
+        document.getElementById('deadNotif').style.border = "3px solid#000";
+        document.getElementById('deadNotif').innerHTML = `<strong>You died!<br> Your score: ${score}</strong>`
+        if (firebase.auth().currentUser) {
+          submitScore(firebase.auth().currentUser, score)
+        }
+        
         document.getElementById('score').innerHTML = "Score: 0"
         return;
     } 

@@ -1,17 +1,116 @@
 <!DOCTYPE html>
 <html>
   <head>
-  	<title>JavaScript Snake</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Javascript Snake</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   </head>
 
-  <body class="blue">
+  <body>
 
+    <nav class="z-depth-0 lighten-4 blue">
+      <div class="nav-wrapper container">
+        <div class="left hide-on-med-and-down"><strong style="color:black;">COMP 426 JavaScript Snake</strong></div>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li class="logged-in">
+              <a href="#" class="modal-trigger" style="color:black;" data-target="modal-account">Account</a>
+            </li>
+            <li class="logged-out">
+              <a href="#" class="modal-trigger" style="color:black;" data-target="modal-login">Login</a>
+            </li>
+            <li class="logged-out">
+              <a href="#" class="modal-trigger" style="color:black;" data-target="modal-signup">Sign up</a>
+            </li>
+            <li class="logged-in">
+              <a href="#" style="color:black;" id="logout">Logout</a>
+            </li>
+          </span>
+        </ul>
+      </div>
+    </nav>
+
+  <!--Signup-->
+    <div id="modal-signup" class="modal">
+      <div class="modal-content">
+        <h4>Sign up</h4><br /><h6 class="error pink-text" style="text-align:center" id="signup-success"></h6>
+        <form id="signup-form">
+          <div class="input-field">
+            <input type="text" id="display-name" required>
+            <label for="signup-email">Display Name:</label>
+          </div>
+          <div class="input-field">
+            <input type="email" id="signup-email" required>
+            <label for="signup-email">Email address</label>
+          </div>
+          <div class="input-field">
+            <input type="password" id="signup-password" required>
+            <label for="signup-password">Choose password</label>
+          </div>
+          <button class="btn blue z-depth-0">Sign up</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- account details -->
+  <div id="modal-account" class="modal">
+    <div class="modal-content center-align">
+      <h4>Account details</h4><br />
+      <div class="account-details"></div>
+      <div class="account-extras"></div>
+    </div>
+  </div>
+
+    <!-- login -->
+    <div id="modal-login" class="modal">
+      <div class="modal-content">
+        <h4>Login</h4><br /><h6 class="error pink-text" style="text-align:center" id="login-success"></h6>
+        <form id="login-form">
+          <div class="input-field">
+            <input type="email" id="login-email" required />
+            <label for="login-email">Email address</label>
+          </div>
+          <div class="input-field">
+            <input type="password" id="login-password" required />
+            <label for="login-password">Your password</label>
+          </div>
+          <button class="btn blue z-depth-0">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <div class ="rightish blue lighten-4" style="width:300px; height:400px; border:4px solid #000;">
+        <h6 style="text-align:center"><strong>High Scores of 426:</strong></h6><hr size="15px">
+        <div id="rankingList" style="overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">
+
+        </div>
+    </div>
+
+    <div class ="leftish blue lighten-4" style="width:300px; text-align:center; height:95px; border:4px solid #000;">
+      <h6><strong>Your Personal High Score:</strong></h6><hr size="15px">
+      <div style="text-align:center;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;" id="personalList">
+
+      </div>
+  </div>
+
+    
+  
     <div id="score">Score: 0</div>
     <canvas id="snakeboard" width="400" height="400"></canvas>
-    <button type="button" class="center" id="retryButton" onclick="main()">Play</button>
-    <a class="centerish" href="leaderboards.html">Click here to visit the 426 leaderboards</a>
+    <div class = "centerForNotif" id="deadNotif"></div>
+    <button type="button" class="center" id="retryButton">Play</button>
     <style>
-
+      .centerForNotif {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align:center;
+        font-size:24pt;
+        background-color: white;
+      }
       .centerish {
         margin: 0;
         position: absolute;
@@ -19,12 +118,27 @@
         left: 55%;
         transform: translate(-90%, -55%);
       }
+      .leftish {
+        margin: 0;
+        position: absolute;
+        top: 31%;
+        left: 15%;
+        transform: translate(-31%, -15%);
+      }
+
+      .rightish {
+        margin: 0;
+        position: absolute;
+        top: 70%;
+        left: 85%;
+        transform: translate(-70%, -85%);
+      }
       .center {
         margin: 0;
         position: absolute;
         top: 85%;
-        left: 50%;
-        transform: translate(-85%, -50%);
+        left: 51%;
+        transform: translate(-85%, -51%);
       }
       .blue {
         background-color: lightblue;
@@ -37,34 +151,37 @@
       }
       #score {
         text-align: center;
-        font-size: 140px;
+        font-size: 70px;
       }
     </style>
-    <!-- The core Firebase JS SDK is always required and must be listed first -->
-<script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-firestore.js"></script>
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyDkwLrdgwlC4o7sIqteTE1EBr4E5RW7MZM",
+        authDomain: "javascript-snake-9a4d8.firebaseapp.com",
+        databaseURL: "https://javascript-snake-9a4d8.firebaseio.com",
+        projectId: "javascript-snake-9a4d8",
+        storageBucket: "javascript-snake-9a4d8.appspot.com",
+        messagingSenderId: "886990347233",
+        appId: "1:886990347233:web:cd322369ebf2edd0c990a0",
+        measurementId: "G-E5L16WLL8M"
+      };
+     
+      //firebase initialized
+      firebase.initializeApp(firebaseConfig);
 
-<!-- TODO: Add SDKs for Firebase products that you want to use
-     https://firebase.google.com/docs/web/setup#available-libraries -->
-<script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-analytics.js"></script>
+      //creating variables for firebase and store
+      const auth = firebase.auth();
+      const db = firebase.firestore();
 
-<script>
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  var firebaseConfig = {
-    apiKey: "AIzaSyDkwLrdgwlC4o7sIqteTE1EBr4E5RW7MZM",
-    authDomain: "javascript-snake-9a4d8.firebaseapp.com",
-    databaseURL: "https://javascript-snake-9a4d8.firebaseio.com",
-    projectId: "javascript-snake-9a4d8",
-    storageBucket: "javascript-snake-9a4d8.appspot.com",
-    messagingSenderId: "886990347233",
-    appId: "1:886990347233:web:cd322369ebf2edd0c990a0",
-    measurementId: "G-E5L16WLL8M"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
-</script>
+      db.settings({ timestampsInSnapshots: true });
+    </script>
   </body>
-  
+  <!--Load final game scripts and materialize popups. Also load login JS.-->
   <script src="gameScript.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="login.js"></script>
+  <script src="authentication.js"></script>
 </html>

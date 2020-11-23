@@ -1,10 +1,12 @@
 const signup = document.getElementById('signup-form');
 signup.addEventListener('submit', (event) => {
+    event.preventDefault();
+
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
     const display = document.getElementById('display-name').value;
 
-    firebase.auth().createUserWithEmailAndPassword(email, password).then(user => {
+    auth.createUserWithEmailAndPassword(email, password).then((user) => {
         return db.collection('players').doc(user.user.uid).set({
             highScore: 0,
             displayName: display
@@ -14,12 +16,15 @@ signup.addEventListener('submit', (event) => {
             document.getElementById('signup-success').innerHTML = '';
         });
     }).catch(err => {
+        console.log(err);
         document.getElementById('signup-success').innerHTML = err.message;
     });
 });
 
 const logout = document.getElementById('logout');
 logout.addEventListener("click", (event) => {
+    event.preventDefault();
+
     firebase.auth().signOut().then(user => {
 
     });
@@ -27,10 +32,13 @@ logout.addEventListener("click", (event) => {
 
 const login = document.getElementById('login-form');
 login.addEventListener('submit', (event) => {
+    event.preventDefault();
+
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    firebase.auth().signInWithEmailAndPassword(email, password).then(user => {
+    auth.signInWithEmailAndPassword(email, password).then(user => {
+        console.log(user);
         M.Modal.getInstance(document.getElementById('modal-login')).close();
         login.reset();
         document.getElementById('login-success').innerHTML = '';

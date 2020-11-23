@@ -1,14 +1,8 @@
 {
-  "name": "426final",
+  "name": "426final2",
   "version": "1.0.0",
   "description": "",
-  "main": "authentication.js",
-  "dependencies": {
-    "axios": "^0.21.0",
-    "firebase-admin": "^9.4.1",
-    "jquery": "^3.5.1"
-  },
-  "devDependencies": {},
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
